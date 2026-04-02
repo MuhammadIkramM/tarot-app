@@ -207,7 +207,6 @@ const particles = ref([])
 const dynamicSummary = ref('')
 const spreadLabels = ['Masa Lalu', 'Masa Kini', 'Masa Depan']
 
-// Referensi Elemen untuk Kalkulasi Koordinat Real-Time
 const deckRef = ref(null)
 const slotRefs = ref([])
 const setSlotRef = (el, index) => {
@@ -217,7 +216,6 @@ const setSlotRef = (el, index) => {
 const deckVisuals = ref([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }, { id: 7 }])
 let nextDeckId = 8
 
-// Animasi Bintang Latar
 const staticStars = ref([])
 const shootingStars = ref([])
 let shootingStarInterval = null
@@ -290,19 +288,16 @@ const generateParticles = () => {
   })
 }
 
-// Menangani Gaya Dinamis Penerbangan Kartu
 const getCardStyle = (card) => {
   if (!card.readyToFly) return {} // Disembunyikan oleh kelas opacity-0
 
   if (!card.dealt) {
-    // Snaps instantly ke posisi Deck
     return {
       transform: `translate3d(${card.startX}px, ${card.startY}px, 0)`,
       transition: 'none',
       pointerEvents: 'none'
     }
   }
-  // Transisi Terbang ke Slot Natural (0,0)
   return {
     transform: `translate3d(0, 0, 0)`,
     transition: 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease, filter 0.4s ease',
@@ -336,11 +331,9 @@ const drawSingleCard = async () => {
   isDrawing.value = true;
   playSound(sfxReveal);
 
-  // LOGIKA URUTAN: Kiri (0), lalu Kanan (2), lalu Tengah (1)
   const order = [0, 2, 1];
   const currentIndex = order[cardsDrawn.value];
 
-  // 1. Dapatkan posisi deck dan target slot secara persisi
   const deckEl = deckRef.value;
   const slotEl = slotRefs.value[currentIndex];
 
@@ -348,7 +341,6 @@ const drawSingleCard = async () => {
     const deckRect = deckEl.getBoundingClientRect();
     const slotRect = slotEl.getBoundingClientRect();
 
-    // Perkiraan offset tumpukan 3D teratas agar kartu terlihat ditarik pas dari pucuk stack
     const deckTopX = deckRect.left - 4.5;
     const deckTopY = deckRect.top - 9;
 
@@ -356,16 +348,13 @@ const drawSingleCard = async () => {
     drawnCards.value[currentIndex].startY = deckTopY - slotRect.top;
   }
 
-  // 2. Tampilkan Kartu Real di Posisi Deck & Hilangkan Kartu Palsu Deck
   drawnCards.value[currentIndex].readyToFly = true;
   deckVisuals.value.pop();
   deckVisuals.value.unshift({ id: nextDeckId++ });
 
   await nextTick();
-  // Paksa browser membaca posisi tanpa animasi
   if (deckEl) deckEl.offsetHeight;
 
-  // 3. Mulai Penerbangan Menuju Slot
   setTimeout(() => {
     drawnCards.value[currentIndex].dealt = true;
   }, 30);
@@ -374,7 +363,6 @@ const drawSingleCard = async () => {
   cardsDrawn.value++;
   isDrawing.value = false;
 
-  // Skenario Transisi ke Langkah Reveal
   if (cardsDrawn.value === 3) {
     step.value = 2
     await delay(800)
@@ -392,7 +380,6 @@ const drawSingleCard = async () => {
     await delay(300)
     step.value = 4
 
-    // Membuka Kartu sesuai urutan ditarik: Kiri -> Kanan -> Tengah
     for (let i = 0; i < 3; i++) {
       const idx = order[i];
       drawnCards.value[idx].focused = true
@@ -463,7 +450,6 @@ const translateCards = () => {
 .deck-fade-center-enter-active { transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
 .deck-fade-center-enter-from { opacity: 0; transform: scale(0.6) translateY(50px); }
 
-/* --- STACK DECK YANG REALISTIS --- */
 .deck-card {
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
   transform: translate3d(calc((var(--idx) - 3) * -1.5px), calc((var(--idx) - 3) * -3px), 0);
