@@ -27,9 +27,9 @@
       </div>
     </div>
 
-    <audio ref="bgMusic" src="/sounds/bg-mystic.mp3" loop></audio>
-    <audio ref="sfxReveal" src="/sounds/card-reveal.mp3"></audio>
-    <audio ref="sfxMagic" src="/sounds/magic-chime.mp3"></audio>
+    <audio ref="bgMusic" :src="`${baseUrl}sounds/bg-mystic.mp3`" loop></audio>
+    <audio ref="sfxReveal" :src="`${baseUrl}sounds/card-reveal.mp3`"></audio>
+    <audio ref="sfxMagic" :src="`${baseUrl}sounds/magic-chime.mp3`"></audio>
 
     <div class="relative z-10 min-h-[100dvh] w-full flex flex-col items-center justify-center py-12 px-4 md:px-8 box-border">
       <main class="w-full max-w-6xl flex flex-col items-center justify-center">
@@ -68,7 +68,7 @@
                 >
                   <div class="card-inner w-full h-full relative preserve-3d" :class="{ 'rotate-y-180': card.revealed }">
                     <div class="card-face card-back absolute inset-0 bg-[#1A2026] border-[1.5px] border-[#00CEC9]/60 rounded-lg shadow-[0_0_20px_rgba(9,132,227,0.4)] overflow-hidden">
-                      <img src="/assets/back-card.jpg" alt="Card Back" class="w-full h-full object-cover" />
+                      <img :src="`${baseUrl}assets/back-card.jpg`" alt="Card Back" class="w-full h-full object-cover" />
                     </div>
                     <div class="card-face card-front absolute inset-0 bg-[#1A2026] border-[1.5px] border-[#00CEC9] rounded-lg shadow-[0_0_30px_rgba(0,206,201,0.6)] rotate-y-180 overflow-hidden pointer-events-auto">
                       <img
@@ -121,7 +121,7 @@
                         border: `1.5px solid rgba(0, 206, 201, ${0.2 + (index * 0.15)})`
                       }"
                     >
-                      <img src="/assets/back-card.jpg" class="w-full h-full object-cover transition-all duration-400 ease-out"
+                      <img :src="`${baseUrl}assets/back-card.jpg`" class="w-full h-full object-cover transition-all duration-400 ease-out"
                            :style="{ filter: `brightness(${0.4 + (index * 0.1)})` }" />
                     </div>
                   </div>
@@ -172,6 +172,8 @@
               <h3 class="text-base md:text-lg font-bold text-[#00CEC9] mb-3 tracking-widest uppercase">Kesimpulan Energi Semesta</h3>
               <p class="text-sm md:text-base text-[#F5F6FA] italic leading-relaxed">{{ dynamicSummary }}</p>
             </div>
+
+            <button @click="resetReading" class="mt-4 px-6 py-2 text-sm text-[#00CEC9] uppercase border border-[#00CEC9] rounded-full hover:bg-[#00CEC9] hover:text-[#1A2026] transition-all self-center">Baca Ulang</button>
           </div>
         </transition>
 
@@ -183,18 +185,97 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
+const baseUrl = import.meta.env.BASE_URL;
+
+// DATABASE 78 KARTU TAROT LENGKAP
 const TAROT_DATABASE = [
-  { id: 0, name: 'The Fool', type: 'Major Arcana', meaning: 'Awal baru, kepolosan, spontanitas, dan kepercayaan pada semesta. Waktunya mengambil risiko tanpa rasa takut.' },
-  { id: 1, name: 'The Magician', type: 'Major Arcana', meaning: 'Kekuatan manifestasi, kreativitas, dan peluang. Anda sudah memiliki semua alat yang dibutuhkan untuk sukses.' },
-  { id: 2, name: 'The High Priestess', type: 'Major Arcana', meaning: 'Intuisi, misteri, dan suara hati. Waktunya untuk diam dan mendengarkan firasat batin Anda.' },
-  { id: 3, name: 'The Empress', type: 'Major Arcana', meaning: 'Kesuburan, alam, dan kelimpahan emosional. Sebuah tanda untuk menciptakan dan mengasuh ide-ide baru.' },
-  { id: 4, name: 'The Emperor', type: 'Major Arcana', meaning: 'Struktur, otoritas, dan stabilitas material. Tanda untuk mengambil kendali dan menciptakan fondasi yang kokoh.' },
-  { id: 5, name: 'The Hierophant', type: 'Major Arcana', meaning: 'Tradisi, bimbingan spiritual, dan sistem kepercayaan. Tanda untuk mencari kebijaksanaan konvensional atau bimbingan dari mentor.' },
-  { id: 14, name: 'Temperance', type: 'Major Arcana', meaning: 'Keseimbangan, harmoni, dan penyembuhan. Sebuah tanda untuk menggabungkan energi dan menemukan jalan tengah yang tenang.' },
-  { id: 22, name: 'Ace of Wands', type: 'Wands (Api)', meaning: 'Inspirasi, ide baru, dan percikan semangat. Tanda untuk mengambil peluang kreatif dengan antusiasme.' },
-  { id: 36, name: 'Ace of Cups', type: 'Cups (Air)', meaning: 'Cinta baru, hubungan emosional, dan ekspresi perasaan. Tanda untuk membuka hati terhadap kegembiraan.' },
-  { id: 50, name: 'Ace of Swords', type: 'Swords (Udara)', meaning: 'Kejelasan mental, kemenangan, dan terobosan intelektual. Tanda untuk menggunakan logika dan kebenaran.' },
-  { id: 64, name: 'Ace of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Peluang material, kemakmuran, dan fondasi kokoh. Tanda untuk berinvestasi dalam kesuksesan jangka panjang.' }
+  // MAJOR ARCANA (0-21)
+  { id: 0, name: 'The Fool', type: 'Major Arcana', meaning: 'Awal baru, kepolosan, kebebasan, dan keberanian mengambil risiko.' },
+  { id: 1, name: 'The Magician', type: 'Major Arcana', meaning: 'Kekuatan manifestasi, kreativitas, keahlian, dan pemanfaatan peluang.' },
+  { id: 2, name: 'The High Priestess', type: 'Major Arcana', meaning: 'Intuisi, misteri, kebijaksanaan batin, dan rahasia yang tersembunyi.' },
+  { id: 3, name: 'The Empress', type: 'Major Arcana', meaning: 'Kesuburan, kelimpahan, keibuan, dan ekspresi alam.' },
+  { id: 4, name: 'The Emperor', type: 'Major Arcana', meaning: 'Struktur, otoritas, stabilitas, dan kepemimpinan logis.' },
+  { id: 5, name: 'The Hierophant', type: 'Major Arcana', meaning: 'Tradisi, bimbingan spiritual, institusi, dan sistem kepercayaan.' },
+  { id: 6, name: 'The Lovers', type: 'Major Arcana', meaning: 'Cinta, harmoni, hubungan yang mendalam, dan pilihan hidup yang penting.' },
+  { id: 7, name: 'The Chariot', type: 'Major Arcana', meaning: 'Tekad, fokus, kemenangan, dan kendali atas rintangan.' },
+  { id: 8, name: 'Strength', type: 'Major Arcana', meaning: 'Keberanian, kasih sayang, kesabaran, dan kekuatan batin.' },
+  { id: 9, name: 'The Hermit', type: 'Major Arcana', meaning: 'Pencarian jiwa, introspeksi, kesendirian, dan bimbingan dari dalam.' },
+  { id: 10, name: 'Wheel of Fortune', type: 'Major Arcana', meaning: 'Perubahan nasib, karma, siklus kehidupan, dan takdir.' },
+  { id: 11, name: 'Justice', type: 'Major Arcana', meaning: 'Keadilan, kebenaran, keseimbangan, dan hukum sebab-akibat.' },
+  { id: 12, name: 'The Hanged Man', type: 'Major Arcana', meaning: 'Pengorbanan, melepaskan kendali, dan melihat dari perspektif baru.' },
+  { id: 13, name: 'Death', type: 'Major Arcana', meaning: 'Akhir dari sebuah siklus, transformasi mendalam, dan transisi pembaruan.' },
+  { id: 14, name: 'Temperance', type: 'Major Arcana', meaning: 'Keseimbangan, moderasi, kedamaian batin, dan penyembuhan.' },
+  { id: 15, name: 'The Devil', type: 'Major Arcana', meaning: 'Keterikatan, kecanduan, bayangan diri, dan belenggu material.' },
+  { id: 16, name: 'The Tower', type: 'Major Arcana', meaning: 'Kehancuran tiba-tiba, wahyu yang mengejutkan, dan runtuhnya ego.' },
+  { id: 17, name: 'The Star', type: 'Major Arcana', meaning: 'Harapan, pembaruan spiritual, inspirasi, dan kedamaian.' },
+  { id: 18, name: 'The Moon', type: 'Major Arcana', meaning: 'Ilusi, ketakutan bawah sadar, intuisi, dan hal-hal yang belum jelas.' },
+  { id: 19, name: 'The Sun', type: 'Major Arcana', meaning: 'Kebahagiaan, kesuksesan, vitalitas, dan pencerahan.' },
+  { id: 20, name: 'Judgement', type: 'Major Arcana', meaning: 'Panggilan batin, kebangkitan, evaluasi diri, dan pengampunan.' },
+  { id: 21, name: 'The World', type: 'Major Arcana', meaning: 'Penyelesaian, pencapaian utuh, perjalanan yang sukses, dan keutuhan.' },
+
+  // MINOR ARCANA - WANDS (API)
+  { id: 22, name: 'Ace of Wands', type: 'Wands (Api)', meaning: 'Inspirasi baru, ide kreatif, dan percikan semangat yang menggebu.' },
+  { id: 23, name: 'Two of Wands', type: 'Wands (Api)', meaning: 'Perencanaan masa depan, penemuan, dan keputusan arah hidup.' },
+  { id: 24, name: 'Three of Wands', type: 'Wands (Api)', meaning: 'Ekspansi, pertumbuhan, dan melihat melampaui batas saat ini.' },
+  { id: 25, name: 'Four of Wands', type: 'Wands (Api)', meaning: 'Perayaan, harmoni keluarga, reuni, dan lingkungan yang stabil.' },
+  { id: 26, name: 'Five of Wands', type: 'Wands (Api)', meaning: 'Konflik ringan, persaingan, perbedaan pendapat, dan ketegangan.' },
+  { id: 27, name: 'Six of Wands', type: 'Wands (Api)', meaning: 'Kemenangan, pengakuan, kesuksesan publik, dan rasa bangga.' },
+  { id: 28, name: 'Seven of Wands', type: 'Wands (Api)', meaning: 'Mempertahankan posisi, ketekunan menghadapi tantangan, dan perlindungan.' },
+  { id: 29, name: 'Eight of Wands', type: 'Wands (Api)', meaning: 'Pergerakan cepat, tindakan yang terburu-buru, dan kedatangan berita.' },
+  { id: 30, name: 'Nine of Wands', type: 'Wands (Api)', meaning: 'Ketahanan, keberanian meski terluka, dan hampir mencapai batas akhir.' },
+  { id: 31, name: 'Ten of Wands', type: 'Wands (Api)', meaning: 'Beban yang terlalu berat, stres, dan tanggung jawab yang menumpuk.' },
+  { id: 32, name: 'Page of Wands', type: 'Wands (Api)', meaning: 'Antusiasme, eksplorasi potensi, dan semangat tanpa batas.' },
+  { id: 33, name: 'Knight of Wands', type: 'Wands (Api)', meaning: 'Tindakan yang didorong gairah, energi, dan petualangan spontan.' },
+  { id: 34, name: 'Queen of Wands', type: 'Wands (Api)', meaning: 'Kepercayaan diri, kemandirian, keberanian, dan pesona sosial.' },
+  { id: 35, name: 'King of Wands', type: 'Wands (Api)', meaning: 'Kepemimpinan bervisi besar, wirausaha, dan daya cipta yang kuat.' },
+
+  // MINOR ARCANA - CUPS (AIR)
+  { id: 36, name: 'Ace of Cups', type: 'Cups (Air)', meaning: 'Cinta baru, hubungan emosional, dan limpahan kasih sayang.' },
+  { id: 37, name: 'Two of Cups', type: 'Cups (Air)', meaning: 'Kemitraan yang seimbang, persatuan, dan cinta yang saling berbalas.' },
+  { id: 38, name: 'Three of Cups', type: 'Cups (Air)', meaning: 'Perayaan, persahabatan, dan kebersamaan dalam komunitas yang bahagia.' },
+  { id: 39, name: 'Four of Cups', type: 'Cups (Air)', meaning: 'Apatis, perenungan diri, dan mengabaikan peluang di depan mata.' },
+  { id: 40, name: 'Five of Cups', type: 'Cups (Air)', meaning: 'Kehilangan, kekecewaan, kesedihan akan masa lalu, dan penyesalan.' },
+  { id: 41, name: 'Six of Cups', type: 'Cups (Air)', meaning: 'Nostalgia, kenangan masa kecil, kepolosan, dan reuni.' },
+  { id: 42, name: 'Seven of Cups', type: 'Cups (Air)', meaning: 'Banyak pilihan, lamunan, ilusi, dan godaan fana.' },
+  { id: 43, name: 'Eight of Cups', type: 'Cups (Air)', meaning: 'Meninggalkan sesuatu yang tak lagi memuaskan, pencarian makna batin.' },
+  { id: 44, name: 'Nine of Cups', type: 'Cups (Air)', meaning: 'Kepuasan, harapan yang terkabul, dan kebanggaan emosional ("Kartu Keinginan").' },
+  { id: 45, name: 'Ten of Cups', type: 'Cups (Air)', meaning: 'Harmoni keluarga, kebahagiaan sejati, dan kedamaian spiritual.' },
+  { id: 46, name: 'Page of Cups', type: 'Cups (Air)', meaning: 'Kreativitas, datangnya pesan emosional, dan intuisi yang polos.' },
+  { id: 47, name: 'Knight of Cups', type: 'Cups (Air)', meaning: 'Romansa, pesona, mengikuti kata hati, dan idealisme cinta.' },
+  { id: 48, name: 'Queen of Cups', type: 'Cups (Air)', meaning: 'Kasih sayang, empati yang dalam, kelembutan, dan kebijaksanaan emosional.' },
+  { id: 49, name: 'King of Cups', type: 'Cups (Air)', meaning: 'Kontrol emosional, diplomasi, keseimbangan perasaan, dan ketenangan.' },
+
+  // MINOR ARCANA - SWORDS (UDARA)
+  { id: 50, name: 'Ace of Swords', type: 'Swords (Udara)', meaning: 'Kejelasan mental, kebenaran mutlak, dan terobosan intelektual.' },
+  { id: 51, name: 'Two of Swords', type: 'Swords (Udara)', meaning: 'Keputusan sulit, jalan buntu, dan menghindari konfrontasi.' },
+  { id: 52, name: 'Three of Swords', type: 'Swords (Udara)', meaning: 'Patah hati, kesedihan, luka emosional, dan rasa sakit.' },
+  { id: 53, name: 'Four of Swords', type: 'Swords (Udara)', meaning: 'Istirahat, pemulihan mental, meditasi, dan persiapan diri.' },
+  { id: 54, name: 'Five of Swords', type: 'Swords (Udara)', meaning: 'Konflik, kemenangan yang merugikan orang lain, atau kekalahan.' },
+  { id: 55, name: 'Six of Swords', type: 'Swords (Udara)', meaning: 'Transisi, pemulihan, meninggalkan rintangan menuju tempat yang tenang.' },
+  { id: 56, name: 'Seven of Swords', type: 'Swords (Udara)', meaning: 'Penipuan, taktik tersembunyi, kelicikan, dan pengkhianatan.' },
+  { id: 57, name: 'Eight of Swords', type: 'Swords (Udara)', meaning: 'Pembatasan diri, merasa terjebak, dan ketakutan yang tidak beralasan.' },
+  { id: 58, name: 'Nine of Swords', type: 'Swords (Udara)', meaning: 'Kecemasan, mimpi buruk, trauma, dan kekhawatiran berlebihan.' },
+  { id: 59, name: 'Ten of Swords', type: 'Swords (Udara)', meaning: 'Akhir yang menyakitkan, titik terendah, pengkhianatan, namun tidak bisa lebih buruk lagi.' },
+  { id: 60, name: 'Page of Swords', type: 'Swords (Udara)', meaning: 'Ide baru, rasa ingin tahu yang tajam, komunikasi, dan kejujuran.' },
+  { id: 61, name: 'Knight of Swords', type: 'Swords (Udara)', meaning: 'Tindakan terburu-buru, ambisi menggebu, dan agresivitas mental.' },
+  { id: 62, name: 'Queen of Swords', type: 'Swords (Udara)', meaning: 'Persepsi tajam, kemandirian, pemikiran logis tanpa emosi buta.' },
+  { id: 63, name: 'King of Swords', type: 'Swords (Udara)', meaning: 'Otoritas intelektual, kebenaran, ketegasan, dan keadilan.' },
+
+  // MINOR ARCANA - PENTACLES (TANAH)
+  { id: 64, name: 'Ace of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Peluang material baru, kemakmuran, dan fondasi finansial.' },
+  { id: 65, name: 'Two of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Keseimbangan prioritas, manajemen waktu, dan adaptasi perubahan.' },
+  { id: 66, name: 'Three of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Kerja sama tim, keterampilan, kolaborasi, dan perencanaan.' },
+  { id: 67, name: 'Four of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Konservasi, keterikatan material yang kaku, dan keengganan berbagi.' },
+  { id: 68, name: 'Five of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Kesulitan finansial, merasa terasingkan, dan masa-masa sulit.' },
+  { id: 69, name: 'Six of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Kemurahan hati, amal, dan keseimbangan antara memberi dan menerima.' },
+  { id: 70, name: 'Seven of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Kesabaran, investasi jangka panjang, dan menunggu hasil panen.' },
+  { id: 71, name: 'Eight of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Dedikasi, pembelajaran tekun, dan pengembangan keterampilan/karir.' },
+  { id: 72, name: 'Nine of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Kemandirian finansial, kenyamanan mewah, dan hasil kerja keras.' },
+  { id: 73, name: 'Ten of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Kekayaan jangka panjang, warisan, dan stabilitas keluarga besar.' },
+  { id: 74, name: 'Page of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Peluang proyek baru, studi, dan manifestasi ide praktis.' },
+  { id: 75, name: 'Knight of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Kerja keras, rutinitas, ketekunan, dan langkah perlahan yang pasti.' },
+  { id: 76, name: 'Queen of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Praktis, sifat mengayomi, dan kelimpahan yang dibagikan.' },
+  { id: 77, name: 'King of Pentacles', type: 'Pentacles (Tanah)', meaning: 'Kesuksesan bisnis, kekayaan besar, dan stabilitas material.' }
 ]
 
 const step = ref(0)
@@ -268,9 +349,12 @@ const playSound = (audioRef) => {
   }
 }
 
+// FORMAT NAMA FILE YANG COCOK DENGAN MAJOR ARCANA & MINOR ARCANA
 const getCardImage = (card) => {
   const formattedName = card.name.toLowerCase().replace(/\s+/g, '-')
-  return card.type === 'Major Arcana' ? `/assets/${card.id}-${formattedName}.png` : `/assets/${formattedName}.png`
+  return card.type === 'Major Arcana'
+    ? `${baseUrl}assets/${card.id}-${formattedName}.png`
+    : `${baseUrl}assets/${formattedName}.png`
 }
 
 const onImageError = (e) => { e.target.style.display = 'none' }
@@ -289,7 +373,7 @@ const generateParticles = () => {
 }
 
 const getCardStyle = (card) => {
-  if (!card.readyToFly) return {} // Disembunyikan oleh kelas opacity-0
+  if (!card.readyToFly) return {}
 
   if (!card.dealt) {
     return {
@@ -359,7 +443,7 @@ const drawSingleCard = async () => {
     drawnCards.value[currentIndex].dealt = true;
   }, 30);
 
-  await delay(650); // Tunggu sampai animasi terbang selesai
+  await delay(650);
   cardsDrawn.value++;
   isDrawing.value = false;
 
@@ -400,9 +484,9 @@ const drawSingleCard = async () => {
 
 const getDynamicText = (card, index) => {
   const m = card.meaning.toLowerCase()
-  if (index === 0) return `Masa lalu Anda sangat dipengaruhi oleh arketipe ${card.name}. Sebelumnya, Anda mengalami ${m}`
-  if (index === 1) return `Saat ini, semesta menempatkan Anda di bawah aura ${card.name}. Realitas Anda menunjukkan ${m}`
-  return `Ke depannya, arah hidup dibimbing oleh kebijaksanaan ${card.name}. Bersiaplah, karena ${m}`
+  if (index === 0) return `Masa lalu Anda diwarnai oleh aura ${card.name}. Sebelumnya, Anda mengalami ${m}`
+  if (index === 1) return `Saat ini, semesta menempatkan Anda di bawah energi ${card.name}. Realitas Anda menunjukkan ${m}`
+  return `Ke depannya, arah hidup dibimbing oleh pesan dari ${card.name}. Bersiaplah, karena akan ada ${m}`
 }
 
 const generateSummary = () => {
@@ -418,17 +502,18 @@ const generateSummary = () => {
   })
 
   let summary = ''
-  if (majorCount >= 2) summary += 'Tebaran ini didominasi oleh energi takdir Major Arcana, menandakan adanya perubahan takdir dan transformasi mendalam yang sedang bekerja. '
-  else if (majorCount === 0) summary += 'Energi saat ini sangat berfokus pada kejadian sehari-hari dan tindakan praktis dalam keseharian Anda. '
+  if (majorCount >= 2) summary += 'Tebaran ini didominasi oleh energi takdir Major Arcana, menandakan adanya perubahan besar, karma, dan transformasi mendalam yang sedang bekerja. '
+  else if (majorCount === 0) summary += 'Energi saat ini berfokus pada kejadian praktis, tugas harian, dan respons terhadap lingkungan sekitar Anda. '
 
+  // Cek dominasi elemen hanya untuk kartu Minor Arcana
   const maxElem = Object.keys(elements).reduce((a, b) => elements[a] > elements[b] ? a : b)
   if (elements[maxElem] >= 2) {
     if (maxElem === 'api') summary += 'Elemen Api mendominasi; ambisi, gairah, dan tindakan cepat akan menentukan hasil Anda.'
-    if (maxElem === 'air') summary += 'Elemen Air mendominasi; intuisi dan hubungan emosional menjadi kunci utama.'
-    if (maxElem === 'udara') summary += 'Elemen Udara mendominasi; logika dan penyelesaian konflik mental mengambil alih panggung kehidupan.'
-    if (maxElem === 'tanah') summary += 'Elemen Tanah mendominasi; stabilitas finansial dan hasil material menjadi sorotan terbesar.'
+    if (maxElem === 'air') summary += 'Elemen Air mendominasi; intuisi, cinta, dan hubungan emosional menjadi kunci utama.'
+    if (maxElem === 'udara') summary += 'Elemen Udara mendominasi; logika, kejujuran, dan penyelesaian konflik mental mengambil alih panggung kehidupan.'
+    if (maxElem === 'tanah') summary += 'Elemen Tanah mendominasi; stabilitas finansial, pekerjaan keras, dan hasil material menjadi sorotan terbesar.'
   } else {
-    summary += 'Keseimbangan elemen tampak, meminta Anda menyelaraskan emosi, logika, dan ambisi untuk melangkah maju.'
+    summary += 'Keseimbangan elemen tampak, meminta Anda menyelaraskan pikiran, perasaan, intuisi, dan tindakan praktis untuk melangkah maju.'
   }
 
   dynamicSummary.value = summary
@@ -438,6 +523,10 @@ const translateCards = () => {
   playSound(sfxMagic)
   generateSummary()
   step.value = 6
+}
+
+const resetReading = () => {
+  step.value = 0
 }
 </script>
 
@@ -461,12 +550,10 @@ const translateCards = () => {
   box-shadow: -5px 10px 20px rgba(0, 206, 201, 0.6);
 }
 
-/* Base style Kartu */
 .card-inner { transition: transform 1s cubic-bezier(0.25, 0.8, 0.25, 1); }
 .card-front img { transform: scale(1.0); transition: transform 1s; }
 .card-wrapper:hover .card-front img { transform: scale(1.03); }
 
-/* Focus State Efek */
 .card-flying {
   transform: scale(1.15) translateY(-25px) !important;
   filter: drop-shadow(0 0 50px rgba(0, 206, 201, 0.8));
