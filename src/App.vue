@@ -4,26 +4,13 @@
     <div class="fixed inset-0 pointer-events-none z-0">
       <div class="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#0984E3] rounded-full mix-blend-screen filter blur-[150px] opacity-15 animate-pulse-slow"></div>
       <div class="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#00CEC9] rounded-full mix-blend-screen filter blur-[150px] opacity-15 animate-pulse-slow" style="animation-delay: 2s;"></div>
-
       <div class="stars-layer-1"></div>
       <div class="floating-dust"></div>
-
       <div class="background-stars absolute inset-0">
-        <div
-          v-for="star in staticStars"
-          :key="star.id"
-          class="star-static"
-          :style="star.style"
-        ></div>
+        <div v-for="star in staticStars" :key="star.id" class="star-static" :style="star.style"></div>
       </div>
-
       <div class="shooting-stars-canvas absolute inset-0">
-        <div
-          v-for="star in shootingStars"
-          :key="star.id"
-          class="star-shooting"
-          :style="star.style"
-        ></div>
+        <div v-for="star in shootingStars" :key="star.id" class="star-shooting" :style="star.style"></div>
       </div>
     </div>
 
@@ -31,17 +18,17 @@
     <audio ref="sfxReveal" :src="`${baseUrl}sounds/card-reveal.mp3`"></audio>
     <audio ref="sfxMagic" :src="`${baseUrl}sounds/magic-chime.mp3`"></audio>
 
-    <div class="relative z-10 min-h-[100dvh] w-full flex flex-col items-center justify-center py-12 px-4 md:px-8 box-border">
-      <main class="w-full max-w-6xl flex flex-col items-center justify-center">
+    <div class="relative z-10 min-h-[100dvh] w-full flex flex-col items-center py-8 md:py-12 px-2 sm:px-4 md:px-8 box-border">
+      <main class="w-full max-w-6xl flex flex-col items-center justify-center my-auto">
 
         <transition name="fade">
-          <div v-if="step === 0" class="flex flex-col items-center gap-10 md:gap-16 z-50">
-            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-widest text-center drop-shadow-[0_0_20px_rgba(0,206,201,0.8)] title-glow uppercase">
+          <div v-if="step === 0" class="flex flex-col items-center gap-8 md:gap-16 z-50 px-2">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-widest text-center drop-shadow-[0_0_20px_rgba(0,206,201,0.8)] title-glow uppercase">
               KARTU TAROT
             </h1>
             <button
               @click="startReading"
-              class="px-10 py-4 text-xl font-bold rounded-full bg-gradient-to-r from-[#0984E3] to-[#00CEC9] text-[#1E272E] hover:scale-110 shadow-[0_0_30px_#0984E3] hover:shadow-[0_0_50px_#00CEC9] transition-all duration-500 cursor-pointer border-none uppercase tracking-widest whitespace-nowrap"
+              class="px-8 md:px-10 py-3 md:py-4 text-lg md:text-xl font-bold rounded-full bg-gradient-to-r from-[#0984E3] to-[#00CEC9] text-[#1E272E] hover:scale-110 shadow-[0_0_30px_#0984E3] hover:shadow-[0_0_50px_#00CEC9] transition-all duration-500 cursor-pointer border-none uppercase tracking-widest whitespace-nowrap"
             >
               Mulai ?
             </button>
@@ -50,7 +37,7 @@
 
         <transition name="fade">
           <div v-if="step >= 1 && step <= 6" class="flex flex-col items-center w-full perspective-1000 z-10">
-            <div class="relative flex flex-row gap-4 md:gap-10 justify-center items-start w-full z-30 mb-4">
+            <div class="relative flex flex-row gap-2 sm:gap-4 md:gap-10 justify-center items-start w-full z-30 mb-2 md:mb-4">
               <div
                 v-for="(card, index) in drawnCards"
                 :key="index"
@@ -83,19 +70,18 @@
                 </div>
 
                 <div
-                  class="mt-3 md:mt-5 text-center transition-all duration-1000 w-full"
+                  class="mt-2 md:mt-5 text-center transition-all duration-1000 w-full px-1"
                   :class="card.revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
                 >
-                  <h3 class="text-[10px] md:text-sm font-extrabold text-[#F5F6FA] uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,206,201,0.5)]">{{ card.name }}</h3>
-                  <p v-if="card.type === 'Major Arcana'" class="text-[8px] md:text-[10px] text-[#00CEC9] mt-1 md:mt-2 font-black tracking-widest opacity-90 uppercase">{{ card.id }} - {{ card.type }}</p>
-                  <p v-else class="text-[8px] md:text-[10px] text-[#00CEC9] mt-1 md:mt-2 font-black tracking-widest opacity-90 uppercase">{{ card.type }}</p>
+                  <h3 class="text-[11px] md:text-sm font-extrabold text-[#F5F6FA] uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,206,201,0.5)]">{{ card.name }}</h3>
+                  <p v-if="card.type === 'Major Arcana'" class="text-[9px] md:text-[10px] text-[#00CEC9] mt-1 md:mt-2 font-black tracking-widest opacity-90 uppercase">{{ card.id }} - {{ card.type }}</p>
+                  <p v-else class="text-[9px] md:text-[10px] text-[#00CEC9] mt-1 md:mt-2 font-black tracking-widest opacity-90 uppercase">{{ card.type }}</p>
                 </div>
               </div>
             </div>
 
             <transition name="fade">
-              <div v-show="step <= 5" class="relative flex items-center justify-center w-full h-[25vw] md:h-[13rem] z-20 mt-8">
-
+              <div v-show="step <= 5" class="relative flex items-center justify-center w-full h-[35vw] md:h-[14rem] z-20 mt-6 md:mt-8">
                 <transition name="deck-fade-center">
                   <div
                     ref="deckRef"
@@ -104,7 +90,7 @@
                     class="absolute z-20 w-[28vw] sm:w-[22vw] md:w-[11rem] max-w-[176px] aspect-[1/1.6] preserve-3d transition-all duration-700 cursor-pointer"
                     :class="{ 'opacity-0 scale-50 blur-[8px] translate-y-4': deckExploding }"
                   >
-                    <div v-if="!deckExploding && cardsDrawn < 3" class="absolute -top-12 left-1/2 -translate-x-1/2 text-[9px] md:text-xs text-[#00CEC9] tracking-widest uppercase font-bold whitespace-nowrap animate-pulse z-30">
+                    <div v-if="!deckExploding && cardsDrawn < 3" class="absolute -top-8 md:-top-12 left-1/2 -translate-x-1/2 text-[10px] md:text-xs text-[#00CEC9] tracking-widest uppercase font-bold whitespace-nowrap animate-pulse z-30">
                       Pilih Kartu ({{ cardsDrawn }}/3)
                     </div>
 
@@ -147,7 +133,7 @@
                   <div v-if="step === 5" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
                     <button
                       @click="translateCards"
-                      class="px-6 md:px-8 py-3 text-sm md:text-lg font-bold border-2 border-[#00CEC9] text-[#00CEC9] rounded-full hover:bg-[#00CEC9] hover:text-[#1E272E] shadow-[0_0_20px_rgba(0,206,201,0.3)] hover:shadow-[0_0_40px_#00CEC9] transition-all duration-500 uppercase tracking-wider whitespace-nowrap"
+                      class="px-5 sm:px-6 md:px-8 py-2 md:py-3 text-xs sm:text-sm md:text-lg font-bold border-2 border-[#00CEC9] text-[#00CEC9] rounded-full hover:bg-[#00CEC9] hover:text-[#1E272E] shadow-[0_0_20px_rgba(0,206,201,0.3)] hover:shadow-[0_0_40px_#00CEC9] transition-all duration-500 uppercase tracking-wider whitespace-nowrap"
                     >
                       Terjemahkan Takdir
                     </button>
@@ -159,21 +145,23 @@
         </transition>
 
         <transition name="slide-up-content">
-          <div v-if="step === 6" class="w-full max-w-5xl flex flex-col gap-6 md:gap-8 mt-12 md:mt-20 z-20">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-[#1A2026]/90 border border-[#00CEC9]/40 rounded-3xl backdrop-blur-xl shadow-2xl">
-              <div v-for="(card, index) in drawnCards" :key="'res-'+index" class="flex flex-col items-center text-center p-4 group">
-                <span class="text-[10px] md:text-xs font-bold text-[#00CEC9] tracking-[0.2em] uppercase border-b-2 border-[#0984E3] pb-2 mb-4 md:mb-5">{{ spreadLabels[index] }}</span>
-                <h4 class="text-lg md:text-xl font-extrabold text-[#F5F6FA] mb-3 md:mb-4 group-hover:text-[#00CEC9] transition-colors uppercase tracking-tight">{{ card.name }}</h4>
+          <div v-if="step === 6" class="w-full max-w-5xl flex flex-col gap-4 md:gap-8 mt-8 md:mt-12 z-20 pb-8 md:pb-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6 bg-[#1A2026]/90 border border-[#00CEC9]/40 rounded-2xl md:rounded-3xl backdrop-blur-xl shadow-2xl">
+              <div v-for="(card, index) in drawnCards" :key="'res-'+index" class="flex flex-col items-center text-center p-3 md:p-4 group">
+                <span class="text-[10px] md:text-xs font-bold text-[#00CEC9] tracking-[0.2em] uppercase border-b-2 border-[#0984E3] pb-2 mb-3 md:mb-5">{{ spreadLabels[index] }}</span>
+                <h4 class="text-base md:text-xl font-extrabold text-[#F5F6FA] mb-2 md:mb-4 group-hover:text-[#00CEC9] transition-colors uppercase tracking-tight">{{ card.name }}</h4>
                 <p class="text-xs md:text-sm leading-relaxed text-[#F5F6FA]/80 group-hover:text-[#F5F6FA] transition-colors italic">"{{ getDynamicText(card, index) }}"</p>
               </div>
             </div>
 
-            <div class="p-6 md:p-8 bg-gradient-to-r from-[#0984E3]/20 to-[#00CEC9]/20 border border-[#00CEC9]/50 rounded-3xl text-center shadow-lg">
-              <h3 class="text-base md:text-lg font-bold text-[#00CEC9] mb-3 tracking-widest uppercase">Kesimpulan Energi Semesta</h3>
-              <p class="text-sm md:text-base text-[#F5F6FA] italic leading-relaxed">{{ dynamicSummary }}</p>
+            <div class="p-5 md:p-8 bg-gradient-to-r from-[#0984E3]/20 to-[#00CEC9]/20 border border-[#00CEC9]/50 rounded-2xl md:rounded-3xl text-center shadow-lg">
+              <h3 class="text-sm md:text-lg font-bold text-[#00CEC9] mb-3 tracking-widest uppercase">Kesimpulan Energi Semesta</h3>
+              <p class="text-xs md:text-base text-[#F5F6FA] italic leading-relaxed">{{ dynamicSummary }}</p>
             </div>
 
-            <button @click="resetReading" class="mt-4 px-6 py-2 text-sm text-[#00CEC9] uppercase border border-[#00CEC9] rounded-full hover:bg-[#00CEC9] hover:text-[#1A2026] transition-all self-center">Baca Ulang</button>
+            <button @click="resetReading" class="mt-2 md:mt-4 px-6 py-2 md:px-8 md:py-3 text-xs md:text-sm text-[#00CEC9] font-bold uppercase border border-[#00CEC9] rounded-full hover:bg-[#00CEC9] hover:text-[#1A2026] transition-all self-center shadow-[0_0_15px_rgba(0,206,201,0.2)] hover:shadow-[0_0_25px_#00CEC9]">
+              Baca Ulang
+            </button>
           </div>
         </transition>
 
@@ -187,7 +175,6 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
 const baseUrl = import.meta.env.BASE_URL;
 
-// DATABASE 78 KARTU TAROT LENGKAP
 const TAROT_DATABASE = [
   // MAJOR ARCANA (0-21)
   { id: 0, name: 'The Fool', type: 'Major Arcana', meaning: 'Awal baru, kepolosan, kebebasan, dan keberanian mengambil risiko.' },
@@ -349,12 +336,9 @@ const playSound = (audioRef) => {
   }
 }
 
-// FORMAT NAMA FILE YANG COCOK DENGAN MAJOR ARCANA & MINOR ARCANA
 const getCardImage = (card) => {
   const formattedName = card.name.toLowerCase().replace(/\s+/g, '-')
-  return card.type === 'Major Arcana'
-    ? `${baseUrl}assets/${card.id}-${formattedName}.png`
-    : `${baseUrl}assets/${formattedName}.png`
+  return card.type === 'Major Arcana' ? `${baseUrl}assets/${card.id}-${formattedName}.png` : `${baseUrl}assets/${formattedName}.png`
 }
 
 const onImageError = (e) => { e.target.style.display = 'none' }
@@ -505,7 +489,6 @@ const generateSummary = () => {
   if (majorCount >= 2) summary += 'Tebaran ini didominasi oleh energi takdir Major Arcana, menandakan adanya perubahan besar, karma, dan transformasi mendalam yang sedang bekerja. '
   else if (majorCount === 0) summary += 'Energi saat ini berfokus pada kejadian praktis, tugas harian, dan respons terhadap lingkungan sekitar Anda. '
 
-  // Cek dominasi elemen hanya untuk kartu Minor Arcana
   const maxElem = Object.keys(elements).reduce((a, b) => elements[a] > elements[b] ? a : b)
   if (elements[maxElem] >= 2) {
     if (maxElem === 'api') summary += 'Elemen Api mendominasi; ambisi, gairah, dan tindakan cepat akan menentukan hasil Anda.'
@@ -525,6 +508,7 @@ const translateCards = () => {
   step.value = 6
 }
 
+// Fungsi untuk mengulang pembacaan dari awal
 const resetReading = () => {
   step.value = 0
 }
